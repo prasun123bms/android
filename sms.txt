@@ -1,0 +1,106 @@
+xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout 
+xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:app="http://schemas.android.com/apk/res-auto"
+ xmlns:tools="http://schemas.android.com/tools"
+ android:layout_width="match_parent"
+ android:layout_height="match_parent"
+ tools:context="com.example.messagesms.MainActivity">
+ <Button
+ android:text="Send SMS"
+ android:layout_width="wrap_content"
+ android:layout_height="wrap_content"
+ android:id="@+id/btnSendSMS"
+ app:layout_constraintLeft_toLeftOf="@+id/activity_main"
+ app:layout_constraintTop_toTopOf="@+id/activity_main"
+ android:layout_marginTop="16dp"
+ app:layout_constraintRight_toRightOf="@+id/activity_main"
+ app:layout_constraintBottom_toBottomOf="@+id/activity_main"
+ android:layout_marginBottom="16dp"
+ android:onClick="onClick"
+ tools:ignore="UnknownId" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+java
+package com.example.messagesms;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.telephony.SmsManager;
+import android.view.View;
+import android.widget.Toast;
+public class MainActivity extends AppCompatActivity {
+ final private int REQUEST_SEND_SMS = 123;
+ @Override
+ protected void onCreate(Bundle savedInstanceState) {
+ super.onCreate(savedInstanceState);
+ setContentView(R.layout.activity_main);
+ if (ContextCompat.checkSelfPermission(this,
+ Manifest.permission.SEND_SMS)
+ != PackageManager.PERMISSION_GRANTED) {
+ ActivityCompat.requestPermissions(this,
+ new String[]{Manifest.permission.SEND_SMS},
+ REQUEST_SEND_SMS);
+ }
+ }
+ @Override
+ public void onRequestPermissionsResult(int requestCode,
+ String[] permissions, int[] grantResults) {
+ switch (requestCode) {
+ case REQUEST_SEND_SMS:
+ if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+ Toast.makeText(MainActivity.this,
+ "Permission Granted", 
+Toast.LENGTH_SHORT).show();
+ } else {
+ Toast.makeText(MainActivity.this,
+ "Permission Denied", 
+Toast.LENGTH_SHORT).show();
+ }
+ break;
+ default:
+ super.onRequestPermissionsResult(requestCode,
+ permissions, grantResults);
+ }
+ }
+ public void onClick(View v) {
+//---the "phone number" of your emulator should be 5554---
+ sendSMS("5554", "Hello my friends!");
+ }
+ //---sends an SMS message---
+ private void sendSMS(String phoneNumber, String message)
+ {
+ SmsManager sms = SmsManager.getDefault();
+ sms.sendTextMessage(phoneNumber, null, message, null, null);
+ }
+}
+
+manifest
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:tools="http://schemas.android.com/tools">
+ <uses-permission android:name="android.permission.SEND_SMS"/>
+ <application
+ android:allowBackup="true"
+ android:dataExtractionRules="@xml/data_extraction_rules"
+ android:fullBackupContent="@xml/backup_rules"
+ android:icon="@mipmap/ic_launcher"
+ android:label="@string/app_name"
+ android:supportsRtl="true"
+ android:theme="@style/Theme.Messagesms"
+ tools:targetApi="31">
+ <activity
+ android:name=".MainActivity"
+ android:exported="true">
+ <intent-filter>
+ <action android:name="android.intent.action.MAIN" />
+ <category android:name="android.intent.category.LAUNCHER" 
+/>
+ </intent-filter>
+ </activity>
+ </application>
+</manifest>
